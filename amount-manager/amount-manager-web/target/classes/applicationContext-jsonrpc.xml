@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+    <!-- JSONRPC 配置文件 -->
+    <!-- 参见: http://www.jsonrpc.org -->
+    <!-- 本项目使用JSONRPC4J技术实现,基于JSONRPC-2.O协议-->
+    <!-- 参见: http://hackersome.com/p/wgpshashank/jsonrpc4j -->
+
+    <!-- java bean 转换成url -->
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+
+    <!-- jsonrpc 服务端注解自动扫描（@JsonRpcService ...） ，注意服务端的接口的实现类要加 @Component-->
+    <bean class="com.fiidee.jsonrpc.spring.AutoJsonRpcServiceExporter">
+        <property name="allowExtraParams" value="true"/>
+        <property name="allowLessParams" value="true"/>
+    </bean>
+
+    <!-- jsonrpc 客户端代理配置及访问服务端的接口URL  -->
+    <bean class="com.fiidee.jsonrpc.spring.AutoJsonRpcClientProxyCreator">
+        <property name="baseUrl" value="${jsonrpc.java.api.base.url}" />
+        <property name="scanPackage" value="com.dayi35.core.spot.api" />
+    </bean>
+
+    <!-- RSA 加密  -->
+    <bean id="rsa" class="com.fiidee.jsonrpc.ext.RSA" lazy-init="false" init-method="init">
+        <property name="publicKeyFile" value="${rsa.public.file.path}"/> <!--公钥文件存放位置-->
+        <property name="privateKeyFile" value="${rsa.private.file.path}"/> <!--私钥文件存放位置-->
+
+    </bean>
+
+
+</beans>

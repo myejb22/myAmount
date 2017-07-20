@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task-3.0.xsd
+       ">
+    <!-- 任务执行线程池记录线程-->
+    <bean id ="createInvitedCompanyExecutor"  class ="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" >
+        <property name ="corePoolSize" value ="5" /> <!--线程池维护线程的最少数量-->
+        <property name ="keepAliveSeconds" value ="200" /><!--线程池维护线程所允许的空闲时间-->
+        <property name ="maxPoolSize" value ="20" />  <!--线程池维护线程的最大数量-->
+        <property name ="queueCapacity" value ="256" /> <!--线程池所使用的缓冲队列-->
+    </bean>
+</beans>

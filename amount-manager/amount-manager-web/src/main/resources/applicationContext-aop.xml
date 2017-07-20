@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       ">
+
+    <!--  -->
+    <!-- 配置AOP切面（注意：对controller层做切面，需要把本配置文件导入到mvc配置文件内，以保证先处理controller切面再处理自定义切面） -->
+    <aop:aspectj-autoproxy expose-proxy="true" />
+    <aop:aspectj-autoproxy proxy-target-class="true">
+        <aop:include name="logPointcut"  />
+        <aop:include name="statePointcut"  />
+        <aop:include name="spotIndexFlush"  />
+    </aop:aspectj-autoproxy>
+
+    <!-- 日志切面工具类 -->
+    <bean id="logPointcut" class="com.dayi35.core.spot.pointcut.LogPointcut" />
+    <!-- 系统状态切面工具类 -->
+    <bean id="statePointcut" class="com.dayi35.core.spot.pointcut.CheckStatePointcut" />
+    <!-- 现货挂牌操作，现货首页刷缓存 -->
+    <bean id="spotIndexFlush" class="com.dayi35.core.spot.pointcut.SpotIndexFlush" />
+</beans>

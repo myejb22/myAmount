@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration>
+        <fileset id="fileset" name="Spring Application Context" removed="false">
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-resources.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-aop.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-base.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-cache.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-dao.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-javamelody.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-jsonrpc.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-mvc.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-pool.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-task.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-tx.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext-user.xml</file>
+          <file>file://$MODULE_DIR$/src/main/resources/applicationContext.xml</file>
+        </fileset>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-beans:4.2.5.RELEASE" level="project" />
+  </component>
+</module>

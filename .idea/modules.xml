@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/amount-manager/amount-manager.iml" filepath="$PROJECT_DIR$/amount-manager/amount-manager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/amount-manager/amount-manager-biz/amount-manager-biz.iml" filepath="$PROJECT_DIR$/amount-manager/amount-manager-biz/amount-manager-biz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/amount-manager/amount-manager-dao/amount-manager-dao.iml" filepath="$PROJECT_DIR$/amount-manager/amount-manager-dao/amount-manager-dao.iml" />
+      <module fileurl="file://$PROJECT_DIR$/amount-manager/amount-manager-pojo/amount-manager-pojo.iml" filepath="$PROJECT_DIR$/amount-manager/amount-manager-pojo/amount-manager-pojo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/amount-manager/amount-manager-service/amount-manager-service.iml" filepath="$PROJECT_DIR$/amount-manager/amount-manager-service/amount-manager-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/amount-manager/amount-manager-web/amount-manager-web.iml" filepath="$PROJECT_DIR$/amount-manager/amount-manager-web/amount-manager-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-parent/common-parent.iml" filepath="$PROJECT_DIR$/common-parent/common-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-utils/common-utils.iml" filepath="$PROJECT_DIR$/common-utils/common-utils.iml" />
+    </modules>
+  </component>
+</project>

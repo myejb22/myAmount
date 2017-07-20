@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="packagesToScan" value="com.dayi35.core.model,com.dayi35.core.spot.**,com.dayi35.sys.*.model,com.dayi35.core.finance.**.model,com.dayi35.payment.factory.model,com.dayi35.payment.bank.pingan.core.model,com.dayi35.core.sys.system.model" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.hbm2ddl.auto">false</prop>
+                <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+                <!-- 转为用filter去打开session <prop key="hibernate.current_session_context_class">com.fiidee.eagle.framework.base.dao.SpringSessionContext</prop>-->
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">false</prop>
+                <prop key="hibernate.enable_lazy_load_no_trans">true</prop>
+                <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+                <!-- 设置HIBERNATE事务隔离级别,防止脏读-->
+                <!--<prop key="hibernate.connection.isolation">2</prop> -->
+
+                <!-- EHcache 2nd cache -->
+                <!--<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory</prop>-->
+                <!--<prop key="net.sf.ehcache.configurationResourceName">ehcache-hibernate.xml</prop>-->
+                <!-- redis 2nd cache  -->
+
+                <!-- 李杰要求：现货系统不使用缓存 -->
+                <!--<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.redis.SingletonRedisRegionFactory</prop>-->
+                <!--<prop key="hibernate.cache.provider_configuration_file_resource_path">profiles/${profile.env}/hibernate-redis.properties</prop>-->
+                <!--<prop key="hibernate.cache.region_prefix">cache.dayi.spot</prop>&lt;!&ndash; 现货的缓存前缀 &ndash;&gt;-->
+            </props>
+        </property>
+        <!-- this use for default naming mapping like userName(O) to user_name(DB)  -->
+        <property name="namingStrategy"><ref bean="namingStrategy"/></property>
+    </bean>
+
+    <!--大易中心用户sessionFactory-->
+    <bean id="sessionFactoryUser" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dayiCenterDataSource"/>
+        <property name="packagesToScan" value="com.dayi35.core.spot.center.model.**,com.dayi35.core.sys.system.model" />
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.hbm2ddl.auto">false</prop>
+                <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+                <!-- 转为用filter去打开session <prop key="hibernate.current_session_context_class">com.fiidee.eagle.framework.base.dao.SpringSessionContext</prop>-->
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+                <prop key="hibernate.cache.use_query_cache">false</prop>
+                <prop key="hibernate.cache.use_structured_entries">false</prop>
+                <prop key="hibernate.enable_lazy_load_no_trans">true</prop>
+                <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+                <!-- 设置HIBERNATE事务隔离级别,防止脏读-->
+                <!--<prop key="hibernate.connection.isolation">2</prop>-->
+            </props>
+        </property>
+        <property name="namingStrategy"><ref bean="namingStrategy"/></property>
+    </bean>
+
+
+    <!--hibernate 4.0.x 命名策略-->
+    <bean id="namingStrategy" class="org.hibernate.cfg.ImprovedNamingStrategy"/>
+
+    <!--  REDIS SETTING -->
+
+    <bean id="redisTemplateMaster1" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConnectionFactoryMaster1"/>
+    </bean>
+
+    <bean id="redisTemplateMaster2" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConnectionFactoryMaster2"/>
+    </bean>
+
+    <!-- JDBC SETTING -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- 大易门户JDBC-->
+    <bean id="jdbcPortalTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dayiCenterDataSource"/>
+    </bean>
+
+    <bean id="financeJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="finaceNamedParameterJdbcTemplate"
+          class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg ref="dataSource"></constructor-arg>
+    </bean>
+    <!-- UC -->
+    <bean id="jdbcUserCenterTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="ucDataSource"/>
+    </bean>
+
+    <bean id="jdbcPhpWmsTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg name="dataSource" ref="phpWmsDataSource" />
+    </bean>
+
+</beans>

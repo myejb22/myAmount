@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task-3.0.xsd
+       ">
+
+    <task:executor id="executor" pool-size="10-25" queue-capacity="100"/>
+    <task:scheduler id="scheduler" pool-size="20"/>
+    <!-- 开启这个配置，spring才能识别@Scheduled注解 -->
+    <task:annotation-driven executor="executor" scheduler="scheduler"/>
+
+    <task:scheduled-tasks scheduler="scheduler">
+        <!-- 【同步交易状态】 每1分钟执行一次 -->
+        <task:scheduled ref="tradeStatusChangeComponent" method="syncDataCache" fixed-delay="60000" />
+
+        <!--【银行状态查询队列】：每20秒执行一次-->
+        <task:scheduled ref="taskBankResultQueue" method="doTask" fixed-delay="20000" />
+
+        <!--【现货中信银行状态查询队列】：每20秒执行一次-->
+         <task:scheduled ref="vitrualBankTask" method="run" fixed-delay="20000" />
+        <!--【短信发送队列】：每1分钟执行一次-->
+        <task:scheduled ref="taskSmsSendQueue" method="sendSms" fixed-delay="60000" />
+
+        <!--【取得挂牌过期列表到REDIS】：每天8:00 AM 执行一次-->
+        <task:scheduled ref="taskQuoteExpirationDate" method="saveQuoteExpirationListToRedis" cron="0 0 8 * * ?" />
+        <!--更新过期的挂牌状态： (每天执行，每隔5分钟执行一次) -->
+        <task:scheduled ref="taskQuoteAction" method="upExpirateQuote" cron="0 0/5 * * * ?" />
+
+        <!--【写入通知、公告消息到企业在线用户收件箱中】：每30分钟执行一次（1800000）-->
+        <task:scheduled ref="taskReceiveComCommonMsg" method="receive" fixed-delay="1800000" />
+
+        <!--统计用户每天的登录数：每天23点执行一次-->
+        <task:scheduled ref="taskCountComUserLogin" method="count" cron="0 0 23 * * ?" />
+        <!--更新过期的议价状态：每天0点执行一次-->
+        <task:scheduled ref="taskBargainAction" method="upExpirateBargain" cron="0 0 0 * * ?" />
+
+
+        <!-- 处理未按时 备货备款 的 (每天闭市17点35开始) -->
+        <task:scheduled ref="contractTask" method="dealNotRead" cron="0 35 17 * * ?" />
+        <!-- 处理未按时 支付仓单和货款 的 (每天闭市17点40开始) -->
+        <task:scheduled ref="contractTask" method="dealNotPay" cron="0 40 17 * * ?" />
+        <!-- 处理 等待处理的合同  (每天闭市17点50开始) -->
+        <task:scheduled ref="contractTask" method="dealWaittinHandel" cron="0 50 17 * * ?" />
+
+        <!-- 处理 发送违约通知短信  (每天8点-18点开始，每隔5分钟执行一次) -->
+        <task:scheduled ref="contractTask" method="sendMsg" cron="0 0/10 8-18 * * ?" />
+
+        <!-- 每天定时下载昨天的银行对账流水每天早上2点执行 -->
+        <task:scheduled ref="citicBankLogTask" method="downLoadBankLog" cron="0 0 2 * * ?" />
+
+        <!-- 每天定时下载昨天的银行对账流水每天早上2点执行 -->
+        <task:scheduled ref="guangfaBankLogTask" method="downLoadGFBankLog" cron="0 0 3 * * ?" />
+
+        <!-- 每天定时更新下载的昨天的银行对账流水每天早上六点执行 -->
+        <task:scheduled ref="citicBankLogTask" method="updatePrintBankLog" cron="0 0 6 * * ?" />
+
+        <!--【用户在线登录心跳】：每5分钟执行一次 换另一种方式 -->
+        <task:scheduled ref="taskRemoveUserOffline" method="run" fixed-delay="300000" />
+
+        <!-- 金融匹配操作 每1分种一次 -->
+        <task:scheduled ref="clearingServiceImpl" method="doMatchAll" cron="0 0/1 * * * ?" />
+        <!-- 金融生成当天的结算利息数据 每1分种一次 -->
+        <task:scheduled ref="clearingServiceImpl" method="doCreateClearingAll" cron="0 0/1 * * * ?" />
+        <!-- 金融利息结算 每1分种一次 -->
+        <task:scheduled ref="clearingServiceImpl" method="doClearingAll" cron="0 0/1 * * * ?" />
+        <!-- 金融协议了结 每1分种一次 -->
+        <task:scheduled ref="clearingServiceImpl" method="handleProtocolRepayment" cron="0 0/1 * * * ?" />
+        <!-- 金融利息数据统计汇总 每2分种一次 -->
+        <task:scheduled ref="clearingServiceImpl" method="doCreateClearingStat" cron="0 0/2 * * * ?" />
+
+        <!-- 金融资金池数据统计汇总 每10分种一次 -->
+        <task:scheduled ref="clearingServiceImpl" method="doUpdateCashPoolingData" cron="0 0/10 * * * ?" />
+
+        <!-- 金融结算机构会员佣金 每月1号凌晨 -->
+        <task:scheduled ref="clearingServiceImpl" method="doDealwithOrganization" cron="0 0 0 1 * ?" />
+        <!-- 金融结算城市服务商 + 创客会员佣金 每月1号凌晨 -->
+        <task:scheduled ref="clearingStatServiceImpl" method="createOrgIncomeRecord" cron="0 0 0 1 * ?" />
+
+        <!--【委托代理的仓单挂牌闭式时下架】：每天闭式时执行一次-->
+        <task:scheduled ref="taskEntrusManifestAction" method="upEntrusManifestQuote" cron="0 35 17 * * ?" />
+
+        <!-- 【同步仓单到PHP】 每10分钟执行一次 -->
+        <task:scheduled ref="taskManifestDataToPhp" method="run" fixed-delay="600000" />
+
+        <!-- 首页品牌专区排名前八的数据采集 每天9:30与18:30进行采集 -->
+        <task:scheduled ref="taskQuoteSpecialCount" method="collectSpecialQuoteData" cron="0 30 9,18 * * ?" />
+
+        <!-- 大易web中增加供求发布时的定时任务 每天7:00与18:00进行采集 -->
+        <task:scheduled ref="taskSpecialComSale" method="specialProductComWriteToRedis" cron="0 0 7,18 * * ?" />
+
+        <!--【定时更新挂牌分类信息】：每30分钟执行一次（1800000）-->
+        <task:scheduled ref="taskUpdateQuoteType" method="updateQuoteType" fixed-delay="1800000" />
+
+        <!--【定时更新检测是否到了做抵押物表的快照时间】：每10分钟执行一次（600000）-->
+        <task:scheduled ref="taskPledgeSnapshot" method="run" fixed-delay="600000" />
+
+        <!--改版大易首页，需要展现的相关数据 每5分种一次-->
+        <task:scheduled ref="taskDayiUcIndexQuote" method="writeQuoteToRedis" cron="0 0/5 * * * ?" />
+
+        <!--改版大易首页，需要展现的相关数据 每10分种一次-->
+        <task:scheduled ref="taskDayiUcIndexSpecialCom" method="writeSpecialComToRedis" cron="0 0/10 * * * ?" />
+
+        <!--改版大易二级首页，需要展现的相关数据 每10分种一次-->
+        <task:scheduled ref="taskDayiUcSecondIndex" method="writeQuoteToRedis" cron="0 0/10 * * * ?" />
+
+        <!--【定时更新检测是否到了做代理商资金账户的快照时间】：每10分钟执行一次（600000）-->
+        <task:scheduled ref="financeAccountSnapshotTask" method="createFinanceAccountSnapshot" cron="0 0/10 * * * ?" />
+
+        <!--【定时检测是否到了统计抽奖次数及如意豆（积分）的时间】：每天晚上8点执行一次-->
+        <!--<task:scheduled ref="taskCountAgentInvest" method="countAgentInvest" cron="0 0 20 * * ?" />-->
+
+        <!--【卡券过期状态提醒】：每天执行一次-->
+        <task:scheduled ref="couponBeOverDueTask" method="sendOverDueMsg" cron="0 0 9 * * ?" />
+
+        <!--【卡券过期更新】：每天执行一次-->
+        <task:scheduled ref="couponOverDueTask" method="updateOverDueCoupon" cron="0 0 0 * * ?" />
+
+        <!--【卡券过期设置成不显示】：每月月初执行一次-->
+        <task:scheduled ref="couponOverDueEnableTask" method="updateOverDueCouponEnable" cron="0 0 0 1 * ?" />
+
+        <!--【活动到期提示更新】-->
+        <!--<task:scheduled ref="couponActiveOverTask" method="couponActiveOver" cron="0 0 9 17 4 ?" />-->
+
+        <!--【每天检查前一天的当前会员是否已经过期】：每天00点40分执行一次 -->
+        <task:scheduled ref="taskVipMember" method="everyDayCheckVipMemberIsValid" cron="0 40 0 * * ?" />
+
+        <!--【每月初的凌晨进行信用指数结算】：每月00点00分执行一次 -->
+        <task:scheduled ref="taskVipMember" method="everyMonthCreditIndexBalance" cron="0 0 0 1 * ?" />
+    </task:scheduled-tasks>
+
+</beans>

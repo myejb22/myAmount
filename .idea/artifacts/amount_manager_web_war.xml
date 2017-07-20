@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="amount-manager-web:war">
+    <output-path>$PROJECT_DIR$/amount-manager/amount-manager-web/target</output-path>
+    <root id="archive" name="amount-manager-web.war">
+      <element id="artifact" artifact-name="amount-manager-web:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+    <context:property-placeholder location="classpath:profiles/${profile.env}/mvc.properties,
+                                            classpath:profiles/${profile.env}/domain.properties,
+                                            classpath:profiles/${profile.env}/freemarker.properties"
+    />
+
+    <!-- Controller 层做独立的注解扫描 -->
+    <context:component-scan
+            base-package="com.my.*"
+            use-default-filters="false">
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+
+    <!-- 配置SpringMvc注解验证 -->
+    <mvc:annotation-driven >
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/plain;charset=UTF-8</value>
+                        <value>text/html; charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/plain;charset=UTF-8</value>
+                        <value>text/html; charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!-- 多视图配置 -->
+    <bean id="negotiatingViewResolver" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order" value="1" />
+        <property name="contentNegotiationManager">
+            <bean class="org.springframework.web.accept.ContentNegotiationManager">
+                <constructor-arg>
+                    <bean class="org.springframework.web.accept.PathExtensionContentNegotiationStrategy">
+                        <constructor-arg>
+                            <map>
+                                <entry key="json" value="text/plain"/>
+                            </map>
+                        </constructor-arg>
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="defaultViews">
+            <list>
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+                    <property name="prettyPrint" value="${mvc.json.prettyPrint}" />
+                    <property name="contentType" value="text/plain" />
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <!-- freemarker视图 -->
+    <bean id="freemarkerResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="order" value="2"/>
+        <property name="suffix" value=".ftl" />
+        <property name="contentType" value="text/html; charset=UTF-8" />
+        <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView"/>
+        <property name="cache" value="${ftl.cache}" />
+    </bean>
+
+    <!-- jsp视图 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="order" value="3" />
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+        <property name="prefix" value="/WEB-INF/views/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!-- FreeMarker 参数配置-->
+    <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="/WEB-INF/views/" />
+        <property name="defaultEncoding" value="${ftl.default_encoding}" />
+        <property name="freemarkerVariables">
+            <map><entry key="xml_escape" value-ref="fmXmlEscape" /></map>
+        </property>
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="template_update_delay">${ftl.template_update_delay}</prop>
+                <!-- 设置标签类型 两种：[] 和 <> 。[] 这种标记解析要快些 -->
+                <prop key="tag_syntax">auto_detect</prop>
+                <prop key="default_encoding">${ftl.default_encoding}</prop>
+                <prop key="output_encoding">${ftl.output_encoding}</prop>
+                <prop key="locale">${ftl.locale}</prop>
+                <prop key="date_format">${ftl.date_format}</prop>
+                <prop key="time_format">${ftl.time_format}</prop>
+                <prop key="datetime_format">${ftl.datetime_format}</prop>
+                <prop key="number_format">${ftl.number_format}</prop>
+                <!-- 可以满足一般需要。默认情况变量为null则替换为空字符串，如果需要自定义，写上${empty!"EmptyValue of fbysss"}的形式即可 -->
+                <prop key="classic_compatible">${ftl.classic_compatible}</prop>
+                <prop key="template_exception_handler">${ftl.template_exception_handler}</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape" />
+
+
+    <bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">
+        <property name="order" value="6"/>
+    </bean>
+
+    <!-- 国际化  -->
+    <!--<bean id="messageSource" name="resouceBundle" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="useCodeAsDefaultMessage" value="true" />
+        <property name="fallbackToSystemLocale" value="false" />
+        <property name="cacheSeconds" value="0" />
+        <property name="basenames">
+            <list>
+                <value>classpath:i18n/static-${profile.site}</value>
+                <value>classpath:i18n/validation</value>
+            </list>
+        </property>
+    </bean>-->
+
+    <!-- 文件上传 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
+    <!-- 随机码 -->
+    <!--<bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">
+        <property name="config">
+            <bean class="com.google.code.kaptcha.util.Config">
+                <constructor-arg type="java.util.Properties">
+                    <props>
+                        <prop key="kaptcha.textproducer.char.string">34578acdefhkmpvwxy</prop>
+                        <prop key="kaptcha.border">no</prop>
+                        <prop key="kaptcha.image.width">100</prop>
+                        <prop key="kaptcha.image.height">36</prop>
+                        <prop key="kaptcha.textproducer.char.space">6</prop>
+                        <prop key="kaptcha.textproducer.char.length">4</prop>&lt;!&ndash;验证码文本字符长度  默认为4 &ndash;&gt;
+                        <prop key="kaptcha.textproducer.font.names">Arial</prop>
+                        <prop key="kaptcha.textproducer.font.size">22</prop>&lt;!&ndash;验证码文本字符大小  默认为40 &ndash;&gt;
+                        <prop key="kaptcha.textproducer.font.color">black</prop>
+                        <prop key="kaptcha.background.clear.from">241,241,241</prop>
+                        <prop key="kaptcha.background.clear.to">237,247,253</prop>
+                        <prop key="kaptcha.noise.impl">com.google.code.kaptcha.impl.NoNoise</prop>&lt;!&ndash; 验证码噪点生成对象  默认为DefaultNoise &ndash;&gt;
+                        <prop key="kaptcha.obscurificator.impl">com.google.code.kaptcha.impl.ShadowGimpy</prop>&lt;!&ndash;验证码样式引擎有WaterRipple（水纹类似的）、ShadowGimpy(投影)、FishEyeGimpy（鱼眼）三种样式   默认为WaterRipple &ndash;&gt;
+                    </props>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>-->
+
+    <!-- 配置默认的资源映射关系 -->
+    <mvc:resources mapping="/template/**" location="/WEB-INF/template/" />
+    <mvc:resources mapping="/static/**" location="/static/" />
+    <mvc:resources mapping="/content/**" location="/content/" />
+    <mvc:resources mapping="/html/**" location="/html/" />
+    <mvc:resources mapping="/xml/*.xml" location="/xml/" />
+    <mvc:resources mapping="/txt/*.txt" location="/txt/" />
+
+    <!-- 配置系统拦截器 -->
+    <!--<mvc:interceptors>
+        &lt;!&ndash;<mvc:interceptor >
+            <mvc:mapping path="/**" />
+            <bean class="SessionInterceptor" />
+        </mvc:interceptor>&ndash;&gt;
+
+        &lt;!&ndash; 现货用户登录拦截器 &ndash;&gt;
+       &lt;!&ndash; <mvc:interceptor>
+            <mvc:mapping path="/user/**" />
+            <mvc:mapping path="/uc/**" />
+            <mvc:mapping path="/bargain/**" />
+            <mvc:mapping path="/contract/**" />
+            <mvc:mapping path="/quote/**" />
+            <mvc:mapping path="/manifest/**" />
+            <mvc:mapping path="/account/**" />
+            <mvc:mapping path="/admin" />
+            <mvc:mapping path="/api/bargain/**" />
+            <mvc:mapping path="/api/quote/**" />
+            <mvc:mapping path="/api/consignation/**" />
+            <mvc:mapping path="/api/manifest/**" />
+            <mvc:mapping path="/api/om/**" />
+            <mvc:mapping path="/api/quotetpl/**" />
+            <mvc:mapping path="/api/repo/**" />
+            <mvc:exclude-mapping path="/login/**" />
+            <mvc:exclude-mapping path="/user/receive/msg/biz/*" />
+            <mvc:exclude-mapping path="/user/receive/count" />
+            <bean id="ssoAuthInterceptor" class="com.dayi35.interceptor.SsoSpotAuthInterceptor">
+            </bean>
+        </mvc:interceptor>&ndash;&gt;
+
+        &lt;!&ndash; 前端页面拦截器包含（登录后的用户中心,不包含后台内容） &ndash;&gt;
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:mapping path="/*" />
+            <mvc:exclude-mapping path="/sys/**"/>
+            <mvc:exclude-mapping path="/sys.*"/>
+            <mvc:exclude-mapping path="/static/**"/>
+            <bean class="com.dayi35.interceptor.FrontInterceptor"/>
+        </mvc:interceptor>
+
+        &lt;!&ndash; 系统后台用户登录验证拦截器 &ndash;&gt;
+        <mvc:interceptor>
+            <mvc:mapping path="/sys/**" />
+            <mvc:mapping path="/sys.*" />
+            <mvc:mapping path="/finance/admin/**" />
+            <bean class="com.dayi35.interceptor.SysInterceptor"/>
+        </mvc:interceptor>
+
+        &lt;!&ndash; 系统后台权限拦截器 &ndash;&gt;
+        <mvc:interceptor>
+            <mvc:mapping path="/sys/**"/>
+            <mvc:mapping path="/sys.*" />
+            <mvc:mapping path="/finance/admin/**" />
+            &lt;!&ndash; 排除一些公共路径的拦截 &ndash;&gt;
+            <mvc:exclude-mapping path="/sys/index/**"/>
+            <mvc:exclude-mapping path="/sys/msg/**"/>
+            <mvc:exclude-mapping path="/sys/receive/**"/>
+            <mvc:exclude-mapping path="/sys/read/msg"/>
+            <mvc:exclude-mapping path="/sys/system/user/password/**"/>
+            <bean class="com.dayi35.interceptor.SysAuthorityInterceptor"/>
+        </mvc:interceptor>
+        &lt;!&ndash; 手机API身份拦截器 &ndash;&gt;
+        <mvc:interceptor>
+            <mvc:mapping path="/api/finance/agent/**" />
+            <mvc:mapping path="/api/finance/economic/**" />
+            <mvc:mapping path="/api/finance/comprehensive/**" />
+            <mvc:mapping path="/api/finance/maker/**" />
+            <mvc:mapping path="/api/finance/user/status" />
+            <bean id="apiFinanceInterceptor" class="com.dayi35.interceptor.ApiFinanceInterceptor">
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>-->
+
+    <!-- 引入AOP切面配置 -->
+    <import resource="applicationContext-aop.xml"/>
+</beans>

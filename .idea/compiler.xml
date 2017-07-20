@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="amount-manager-biz" />
+        <module name="amount-manager-dao" />
+        <module name="amount-manager-pojo" />
+        <module name="amount-manager-service" />
+        <module name="amount-manager-web" />
+        <module name="common-utils" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="amount-manager" target="1.5" />
+      <module name="amount-manager-biz" target="1.5" />
+      <module name="amount-manager-dao" target="1.5" />
+      <module name="amount-manager-mapper" target="1.5" />
+      <module name="amount-manager-pojo" target="1.5" />
+      <module name="amount-manager-service" target="1.5" />
+      <module name="amount-manager-web" target="1.8" />
+      <module name="common-parent" target="1.5" />
+      <module name="common-utils" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

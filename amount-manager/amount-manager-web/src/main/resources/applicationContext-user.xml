@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd"
+       default-lazy-init="true" default-autowire="byName">
+
+    <bean id="dayiClientConf" class="com.dayi35.user.client.conf.DayiClientConf" lazy-init="false">
+        <property name="jmsBrokerURL" value="${jms.service.url}"/> <!--jms的服务地址-->
+        <property name="scanePackage" value="com.dayi35"/> <!--通知方法接口被显示需要扫描包路径-->
+        <property name="serviceUrl" value="${cxf.service.url}"/> <!--用户中心服务调用地址-->
+        <property name="loginUrl" value="${login.url}"/> <!--登录访问地址-->
+        <property name="redisTemplate" ref="redisTemplateMaster1"/> <!--缓存核心-->
+        <!--数字证书的加密配置-->
+        <property name="clientKeyPass" value="${wss4j.cliKeyPass}"/> <!--客户端密钥密码-->
+        <property name="aliasUser" value="${wss4j.cliAlias}"/> <!--签名用户名称-->
+        <property name="signaturePropFile" value="profiles/${profile.env}/client_sign.properties"/> <!--签名的配置文件路径-->
+        <property name="encryptionUser" value="${wss4j.serAlias}"/> <!--加密的用户名称-->
+        <property name="encryptionPropFile" value="profiles/${profile.env}/client_encrypt.properties"/> <!--加密的配置文件路径-->
+
+        <!--网站cookie的域名和名称设置-->
+        <property name="cookieDomain" value="${cookie.domain}"/> <!--cookie的保存域名-->
+        <property name="workingProject" value="spot"/> <!--引用平台-->
+    </bean>
+
+    <import resource="classpath:META-INF/dayiclient-config.xml" />
+
+</beans>

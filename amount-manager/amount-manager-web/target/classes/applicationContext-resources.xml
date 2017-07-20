@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location=
+                                          "classpath:log4j.properties,
+                                            classpath:profiles/${profile.env}/jdbc.properties,
+                                            classpath:profiles/${profile.env}/jdbc-druid.properties,
+                                            classpath:profiles/${profile.env}/mail.properties,
+                                            classpath:profiles/${profile.env}/sms.properties,
+                                            classpath:profiles/${profile.env}/redis.properties,
+                                            classpath:profiles/${profile.env}/cookie.properties,
+                                            classpath:profiles/${profile.env}/freemarker.properties,
+                                            classpath:profiles/${profile.env}/path.properties,
+                                            classpath:profiles/${profile.env}/domain.properties,
+                                            classpath:profiles/${profile.env}/mvc.properties,
+                                            classpath:profiles/${profile.env}/jsonrpc.properties,
+                                            classpath:profiles/${profile.env}/common-api.properties,
+                                            classpath:profiles/${profile.env}/growingIO.properties"
+    />
+
+    <!-- 现货自己的数据源 -->
+    <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+        <property name="driverClass" value="${jdbc.master.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.master.url}"/>
+        <property name="username" value="${jdbc.master.username}"/>
+        <property name="password" value="${jdbc.master.password}"/>
+        <property name="idleConnectionTestPeriodInMinutes" value="60"/>
+        <property name="idleMaxAgeInMinutes" value="240"/>
+        <property name="maxConnectionsPerPartition" value="${jdbc.master.max.connections.per.partition}"/>
+        <property name="minConnectionsPerPartition" value="${jdbc.master.min.connections.per.partition}"/>
+        <property name="partitionCount" value="${jdbc.master.partition.count}"/>
+        <property name="acquireIncrement" value="5"/>
+        <property name="statementsCacheSize" value="100"/>
+    </bean>
+
+    <!-- redis config  -->
+    <bean id="jedisConnectionFactoryMaster1" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="shardInfo" ref="jedisShardInfoMaster1"/>
+        <property name="poolConfig" ref="jedisPoolConfig"/>
+        <property name="password" value="${redis.master1.pass}"/>
+        <property name="usePool" value="true"/>
+        <property name="database" value="${redis.master1.database}"/>
+    </bean>
+
+    <bean id="jedisConnectionFactoryMaster2" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="shardInfo" ref="jedisShardInfoMaster2"/>
+        <property name="poolConfig" ref="jedisPoolConfig"/>
+        <property name="password" value="${redis.master2.pass}"/>
+        <property name="usePool" value="true"/>
+        <property name="database" value="${redis.master2.database}"/>
+    </bean>
+
+    <bean id="globalSiteType" name="globalSiteType" class="java.lang.String">
+        <constructor-arg value="${profile.site}"/>
+    </bean>
+<!--    <bean id="domainMain" name="domainMain" class="java.lang.String">
+        <constructor-arg value="${domain.main}"/>
+    </bean>
+    <bean id="domainImg" name="domainImg" class="java.lang.String">
+        <constructor-arg value="${domain.img}"/>
+    </bean>-->
+
+    <bean id="jsCompress" name="jsCompress" class="java.lang.String">
+        <constructor-arg value="${profile.js.compress}"/>
+    </bean>
+
+
+
+</beans>
